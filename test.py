@@ -24,26 +24,12 @@ for i in range(10):
 
 	out = net(input1, input2)
 
-	print(torch.sum(out.data - expected))
+	print(torch.sum(out.data - expected), '<-- should be 0.0')
 
 	out.backward(out.data)
 # end
 
 print('switching to DataParallel mode')
-
-print('for me, this works with')
-print('    export CUDA_VISIBLE_DEVICES="0"')
-print('    export CUDA_VISIBLE_DEVICES="1"')
-print('    export CUDA_VISIBLE_DEVICES="2"')
-print('    export CUDA_VISIBLE_DEVICES="3"')
-print('    export CUDA_VISIBLE_DEVICES="0,1"')
-print('    export CUDA_VISIBLE_DEVICES="2,3"')
-print('and fails with many others like')
-print('    export CUDA_VISIBLE_DEVICES="0,2"')
-print('    export CUDA_VISIBLE_DEVICES="0,3"')
-print('    export CUDA_VISIBLE_DEVICES="1,2"')
-print('    export CUDA_VISIBLE_DEVICES="1,3"')
-print('    export CUDA_VISIBLE_DEVICES="0,1,2,3"')
 
 net = torch.nn.DataParallel(Network()).cuda()
 for i in range(10):
@@ -57,7 +43,7 @@ for i in range(10):
 
 	out = net(input1, input2)
 
-	print(torch.sum(out.data - expected))
+	print(torch.sum(out.data - expected), '<-- should be 0.0')
 
 	out.backward(out.data)
 # end
