@@ -17,16 +17,15 @@ for i in range(10):
 	input1 = torch.rand(64, 3, 128, 128).cuda()
 	input2 = torch.rand(64, 3, 128, 128).cuda()
 
-	expected = torch.mul(input1, input2)
-
 	input1 = torch.autograd.Variable(input1, requires_grad=True)
 	input2 = torch.autograd.Variable(input2, requires_grad=True)
 
-	out = net(input1, input2)
+	output = net(input1, input2)
+	expected = torch.mul(input1, input2)
 
-	print(torch.sum(out.data - expected), '<-- should be 0.0')
+	print(torch.sum(output.data - expected.data), '<-- should be 0.0')
 
-	out.backward(out.data)
+	output.backward(output.data)
 # end
 
 print('switching to DataParallel mode')
@@ -36,14 +35,13 @@ for i in range(10):
 	input1 = torch.rand(64, 3, 128, 128).cuda()
 	input2 = torch.rand(64, 3, 128, 128).cuda()
 
-	expected = torch.mul(input1, input2)
-
 	input1 = torch.autograd.Variable(input1, requires_grad=True)
 	input2 = torch.autograd.Variable(input2, requires_grad=True)
 
-	out = net(input1, input2)
+	output = net(input1, input2)
+	expected = torch.mul(input1, input2)
 
-	print(torch.sum(out.data - expected), '<-- should be 0.0')
+	print(torch.sum(output.data - expected.data), '<-- should be 0.0')
 
-	out.backward(out.data)
+	output.backward(output.data)
 # end
