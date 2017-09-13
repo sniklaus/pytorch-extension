@@ -23,7 +23,7 @@ class HadamardProduct(torch.autograd.Function):
 			)
 
 		elif input1.is_cuda == False:
-			assert(False) # CPU VERSION NOT IMPLEMENTED
+			raise NotImplementedError() # CPU VERSION NOT IMPLEMENTED
 
 		# end
 
@@ -48,7 +48,7 @@ class HadamardProduct(torch.autograd.Function):
 			)
 
 		elif input1.is_cuda == False:
-			assert(False) # CPU VERSION NOT IMPLEMENTED
+			raise NotImplementedError() # CPU VERSION NOT IMPLEMENTED
 
 		# end
 
