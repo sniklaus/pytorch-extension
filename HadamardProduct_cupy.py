@@ -1,7 +1,6 @@
 import torch
+
 import cupy
-import string
-import collections
 
 kernel_HadamardProduct_updateOutput = '''
 	extern "C" __global__ void kernel_HadamardProduct_updateOutput(
