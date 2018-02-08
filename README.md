@@ -8,6 +8,9 @@ For a PyTorch extension that uses CuPy instead of CFFI, please see: https://gith
 ## setup
 To build the extension, run `bash install.bash` and make sure that the `CUDA_HOME` environment variable is set. Should you receive an error message regarding an invalid device function when making use of the extension, configure the CUDA architecture within `install.bash` to something your graphics card supports.
 
+## cupy
+The initial version of this extension only contained a CFFI example. Since then, `HadamardProduct_cupy.py` has been added which makes use of CuPy to perform the given task. This version of the extension does not need to be built in advance and the setup section does not apply to it, CuPy will take care of the compilation during runtime. This repository thus serves as a reference for implementing the Hadamard product once using CFFI and once using CuPy instead.
+
 ## usage
 After successfully building the extension, run `python test.py` to test it. A minimal example of how the sample extension can be used is also shown below.
 
