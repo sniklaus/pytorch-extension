@@ -3,7 +3,7 @@ This is an example of a CUDA extension for PyTorch which computes the Hadamard p
 
 For the Torch version of this example extension, please see: https://github.com/sniklaus/torch-extension
 <br />
-For a PyTorch extension that uses CuPy instead of CFFI, please see: https://github.com/szagoruyko/pyinn
+For a more advanced PyTorch extension that uses CuPy, please see: https://github.com/szagoruyko/pyinn
 
 ## setup
 To build the extension, run `bash install.bash` and make sure that the `CUDA_HOME` environment variable is set. Should you receive an error message regarding an invalid device function when making use of the extension, configure the CUDA architecture within `install.bash` to something your graphics card supports.
