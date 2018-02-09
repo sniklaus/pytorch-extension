@@ -82,8 +82,8 @@ class HadamardProduct(torch.autograd.Function):
 
 			n = output.nelement()
 			cunnex('kernel_HadamardProduct_updateOutput')(
-				block=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				grid=tuple([ 512, 1, 1 ]),
+				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
+				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), output.data_ptr() ],
 				stream=Stream
 			)
@@ -111,16 +111,16 @@ class HadamardProduct(torch.autograd.Function):
 
 			n = gradInput1.nelement()
 			cunnex('kernel_HadamardProduct_updateGradInput1')(
-				block=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				grid=tuple([ 512, 1, 1 ]),
+				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
+				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
 				stream=Stream
 			)
 
 			n = gradInput2.nelement()
 			cunnex('kernel_HadamardProduct_updateGradInput2')(
-				block=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				grid=tuple([ 512, 1, 1 ]),
+				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
+				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
 				stream=Stream
 			)
