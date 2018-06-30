@@ -77,7 +77,7 @@ class HadamardProduct(torch.autograd.Function):
 
 		if input1.is_cuda == True:
 			class Stream:
-				ptr=torch.cuda.current_stream().cuda_stream
+				ptr = torch.cuda.current_stream().cuda_stream
 			# end
 
 			n = output.nelement()
@@ -106,7 +106,7 @@ class HadamardProduct(torch.autograd.Function):
 
 		if input1.is_cuda == True:
 			class Stream:
-				ptr=torch.cuda.current_stream().cuda_stream
+				ptr = torch.cuda.current_stream().cuda_stream
 			# end
 
 			n = gradInput1.nelement()
