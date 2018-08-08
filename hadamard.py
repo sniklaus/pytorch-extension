@@ -1,9 +1,8 @@
+import cupy
 import torch
 
-import cupy
-
-kernel_HadamardProduct_updateOutput = '''
-	extern "C" __global__ void kernel_HadamardProduct_updateOutput(
+kernel_Hadamard_updateOutput = '''
+	extern "C" __global__ void kernel_Hadamard_updateOutput(
 		const int n,
 		const float* input1,
 		const float* input2,
@@ -19,8 +18,8 @@ kernel_HadamardProduct_updateOutput = '''
 	}
 '''
 
-kernel_HadamardProduct_updateGradInput1 = '''
-	extern "C" __global__ void kernel_HadamardProduct_updateGradInput1(
+kernel_Hadamard_updateGradInput1 = '''
+	extern "C" __global__ void kernel_Hadamard_updateGradInput1(
 		const int n,
 		const float* input1,
 		const float* input2,
@@ -38,8 +37,8 @@ kernel_HadamardProduct_updateGradInput1 = '''
 	}
 '''
 
-kernel_HadamardProduct_updateGradInput2 = '''
-	extern "C" __global__ void kernel_HadamardProduct_updateGradInput2(
+kernel_Hadamard_updateGradInput2 = '''
+	extern "C" __global__ void kernel_Hadamard_updateGradInput2(
 		const int n,
 		const float* input1,
 		const float* input2,
@@ -62,9 +61,9 @@ def cunnex(strFunction):
 	return cupy.cuda.compile_with_cache(globals()[strFunction]).get_function(strFunction)
 # end
 
-class HadamardProduct(torch.autograd.Function):
+class Hadamard(torch.autograd.Function):
 	def __init__(self):
-		super(HadamardProduct, self).__init__()
+		super(Hadamard, self).__init__()
 	# end
 
 	def forward(self, input1, input2):
@@ -81,7 +80,7 @@ class HadamardProduct(torch.autograd.Function):
 			# end
 
 			n = output.nelement()
-			cunnex('kernel_HadamardProduct_updateOutput')(
+			cunnex('kernel_Hadamard_updateOutput')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), output.data_ptr() ],
@@ -89,7 +88,7 @@ class HadamardProduct(torch.autograd.Function):
 			)
 
 		elif input1.is_cuda == False:
-			raise NotImplementedError() # CPU VERSION NOT IMPLEMENTED
+			raise NotImplementedError()
 
 		# end
 
@@ -110,7 +109,7 @@ class HadamardProduct(torch.autograd.Function):
 			# end
 
 			n = gradInput1.nelement()
-			cunnex('kernel_HadamardProduct_updateGradInput1')(
+			cunnex('kernel_Hadamard_updateGradInput1')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
@@ -118,7 +117,7 @@ class HadamardProduct(torch.autograd.Function):
 			)
 
 			n = gradInput2.nelement()
-			cunnex('kernel_HadamardProduct_updateGradInput2')(
+			cunnex('kernel_Hadamard_updateGradInput2')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
 				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
@@ -126,7 +125,7 @@ class HadamardProduct(torch.autograd.Function):
 			)
 
 		elif input1.is_cuda == False:
-			raise NotImplementedError() # CPU VERSION NOT IMPLEMENTED
+			raise NotImplementedError()
 
 		# end
 

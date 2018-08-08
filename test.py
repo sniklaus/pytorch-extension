@@ -1,8 +1,8 @@
 import torch
 
-assert(int(torch.__version__.replace('.', '')) >= 40) # requires at least pytorch version 0.4.0
+import hadamard
 
-from HadamardProduct import HadamardProduct
+assert(int(torch.__version__.replace('.', '')) >= 40) # requires at least pytorch version 0.4.0
 
 class Network(torch.nn.Module):
 	def __init__(self):
@@ -10,7 +10,7 @@ class Network(torch.nn.Module):
 	# end
 
 	def forward(self, input1, input2):
-		return HadamardProduct()(input1, input2)
+		return hadamard.Hadamard()(input1, input2)
 	# end
 # end
 
