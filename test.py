@@ -25,7 +25,7 @@ for i in range(3):
 	output = net(input1, input2)
 	expected = torch.mul(input1, input2)
 
-	print(torch.sum(output.data - expected.data), '<-- should be 0.0')
+	print((output.data - expected.data).abs().sum(), '<-- should be 0.0')
 	print(torch.autograd.gradcheck(net, tuple([ input1, input2 ]), 0.001), '<-- should be true')
 # end
 
@@ -42,6 +42,6 @@ for i in range(3):
 	output = net(input1, input2)
 	expected = torch.mul(input1, input2)
 
-	print(torch.sum(output.data - expected.data), '<-- should be 0.0')
+	print((output.data - expected.data).abs().sum(), '<-- should be 0.0')
 	print(torch.autograd.gradcheck(net, tuple([ input1, input2 ]), 0.001), '<-- should be true')
 # end
