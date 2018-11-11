@@ -1,5 +1,10 @@
-import cupy
 import torch
+
+import cupy
+
+class Stream:
+	ptr = torch.cuda.current_stream().cuda_stream
+# end
 
 kernel_Hadamard_updateOutput = '''
 	extern "C" __global__ void kernel_Hadamard_updateOutput(
@@ -75,10 +80,6 @@ class Hadamard(torch.autograd.Function):
 		output = input1.new_zeros(input1.size(0), input1.size(1), input1.size(2), input1.size(3))
 
 		if input1.is_cuda == True:
-			class Stream:
-				ptr = torch.cuda.current_stream().cuda_stream
-			# end
-
 			n = output.nelement()
 			cunnex('kernel_Hadamard_updateOutput')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
@@ -104,10 +105,6 @@ class Hadamard(torch.autograd.Function):
 		gradInput2 = input1.new_zeros(input1.size(0), input1.size(1), input1.size(2), input1.size(3))
 
 		if input1.is_cuda == True:
-			class Stream:
-				ptr = torch.cuda.current_stream().cuda_stream
-			# end
-
 			n = gradInput1.nelement()
 			cunnex('kernel_Hadamard_updateGradInput1')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
