@@ -77,7 +77,7 @@ class Hadamard(torch.autograd.Function):
 		assert(input1.is_contiguous() == True)
 		assert(input2.is_contiguous() == True)
 
-		output = input1.new_zeros(input1.size(0), input1.size(1), input1.size(2), input1.size(3))
+		output = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
 
 		if input1.is_cuda == True:
 			n = output.nelement()
@@ -101,8 +101,8 @@ class Hadamard(torch.autograd.Function):
 
 		assert(gradOutput.is_contiguous() == True)
 
-		gradInput1 = input1.new_zeros(input1.size(0), input1.size(1), input1.size(2), input1.size(3))
-		gradInput2 = input1.new_zeros(input1.size(0), input1.size(1), input1.size(2), input1.size(3))
+		gradInput1 = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
+		gradInput2 = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
 
 		if input1.is_cuda == True:
 			n = gradInput1.nelement()
