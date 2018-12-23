@@ -2,7 +2,7 @@ import torch
 
 import hadamard
 
-assert(int(torch.__version__.replace('.', '')) >= 40) # requires at least pytorch version 0.4.0
+assert(int(str('').join(torch.__version__.split('.')[0:3])) >= 40) # requires at least pytorch version 0.4.0
 
 class Network(torch.nn.Module):
 	def __init__(self):
