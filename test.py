@@ -2,7 +2,11 @@ import torch
 
 import hadamard
 
+##########################################################
+
 assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 10) # requires at least pytorch version 1.0.0
+
+##########################################################
 
 class Network(torch.nn.Module):
 	def __init__(self):
