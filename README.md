@@ -20,7 +20,7 @@ class Network(torch.nn.Module):
 	# end
 
 	def forward(self, input1, input2):
-		return hadamard.Hadamard()(input1, input2)
+		return hadamard.Hadamard.apply(input1, input2)
 	# end
 # end
 

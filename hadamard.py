@@ -63,10 +63,7 @@ def cunnex(strFunction):
 # end
 
 class Hadamard(torch.autograd.Function):
-	def __init__(self):
-		super(Hadamard, self).__init__()
-	# end
-
+	@staticmethod
 	def forward(self, input1, input2):
 		self.save_for_backward(input1, input2)
 
@@ -91,6 +88,7 @@ class Hadamard(torch.autograd.Function):
 		return output
 	# end
 
+	@staticmethod
 	def backward(self, gradOutput):
 		input1, input2 = self.saved_tensors
 
