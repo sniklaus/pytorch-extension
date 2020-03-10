@@ -2,10 +2,6 @@ import torch
 
 import cupy
 
-class Stream:
-	ptr = torch.cuda.current_stream().cuda_stream
-# end
-
 kernel_Hadamard_updateOutput = '''
 	extern "C" __global__ void kernel_Hadamard_updateOutput(
 		const int n,
@@ -77,15 +73,14 @@ class Hadamard(torch.autograd.Function):
 		assert(input1.is_contiguous() == True)
 		assert(input2.is_contiguous() == True)
 
-		output = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
+		output = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
 
 		if input1.is_cuda == True:
 			n = output.nelement()
 			cunnex('kernel_Hadamard_updateOutput')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), output.data_ptr() ],
-				stream=Stream
+				args=[ n, input1.data_ptr(), input2.data_ptr(), output.data_ptr() ]
 			)
 
 		elif input1.is_cuda == False:
@@ -101,24 +96,22 @@ class Hadamard(torch.autograd.Function):
 
 		assert(gradOutput.is_contiguous() == True)
 
-		gradInput1 = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
-		gradInput2 = input1.new_zeros([ input1.size(0), input1.size(1), input1.size(2), input1.size(3) ])
+		gradInput1 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
+		gradInput2 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
 
 		if input1.is_cuda == True:
 			n = gradInput1.nelement()
 			cunnex('kernel_Hadamard_updateGradInput1')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
-				stream=Stream
+				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
 			)
 
 			n = gradInput2.nelement()
 			cunnex('kernel_Hadamard_updateGradInput2')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ],
-				stream=Stream
+				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
 			)
 
 		elif input1.is_cuda == False:
