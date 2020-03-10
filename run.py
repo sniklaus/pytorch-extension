@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 import torch
 
 import hadamard
 
 ##########################################################
 
-assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 10) # requires at least pytorch version 1.0.0
+assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 13) # requires at least pytorch version 1.3.0
 
 ##########################################################
 

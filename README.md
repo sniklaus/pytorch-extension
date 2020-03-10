@@ -7,7 +7,7 @@ For a more advanced PyTorch extension that uses CuPy as well, please see: https:
 Make sure to install CuPy, which can be done using `pip install cupy` or alternatively using one of the provided binary packages as outlined in the CuPy repository.
 
 ## usage
-There is no separate build process necessary, simply run `python test.py` to test it. A minimal example of how the sample extension can be used is also shown below.
+There is no separate build process necessary, simply run `python run.py` to test it. A minimal example of how the sample extension can be used is also shown below.
 
 ```python
 import torch
