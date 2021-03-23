@@ -4,7 +4,7 @@ This is an example of a CUDA extension for PyTorch which uses CuPy to compute th
 For a more advanced PyTorch extension that uses CuPy as well, please see: https://github.com/szagoruyko/pyinn
 
 ## setup
-Make sure to install CuPy, which can be done using `pip install cupy` or alternatively using one of the provided binary packages as outlined in the CuPy repository.
+Make sure to install CuPy, which can be done using `pip install cupy` or alternatively using one of the provided [binary packages](https://docs.cupy.dev/en/stable/install.html#installing-cupy) as outlined in the CuPy repository.
 
 ## usage
 There is no separate build process necessary, simply run `python run.py` to test it. A minimal example of how the sample extension can be used is also shown below.
