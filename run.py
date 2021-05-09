@@ -32,7 +32,7 @@ for i in range(3):
 	expected = torch.mul(input1, input2)
 
 	print((output.data - expected.data).abs().sum(), '<-- should be 0.0')
-	print(torch.autograd.gradcheck(net, tuple([ input1, input2 ]), 0.001), '<-- should be true')
+	print(torch.autograd.gradcheck(net, tuple([input1, input2]), 0.001), '<-- should be true')
 # end
 
 print('switching to DataParallel mode')
@@ -49,5 +49,5 @@ for i in range(3):
 	expected = torch.mul(input1, input2)
 
 	print((output.data - expected.data).abs().sum(), '<-- should be 0.0')
-	print(torch.autograd.gradcheck(net, tuple([ input1, input2 ]), 0.001), '<-- should be true')
+	print(torch.autograd.gradcheck(net, tuple([input1, input2]), 0.001), '<-- should be true')
 # end
