@@ -69,8 +69,8 @@ class Hadamard(torch.autograd.Function):
 	def forward(self, input1, input2):
 		self.save_for_backward(input1, input2)
 
-		assert(input1.is_contiguous() == True)
-		assert(input2.is_contiguous() == True)
+        input1 = input1.contiguous(); assert(input1.is_cuda == True)
+        input2 = input2.contiguous(); assert(input2.is_cuda == True)
 
 		output = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
 
@@ -94,7 +94,7 @@ class Hadamard(torch.autograd.Function):
 	def backward(self, gradOutput):
 		input1, input2 = self.saved_tensors
 
-		assert(gradOutput.is_contiguous() == True)
+        gradOutput = gradOutput.contiguous(); assert(gradOutput.is_cuda == True)
 
 		gradInput1 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
 		gradInput2 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
