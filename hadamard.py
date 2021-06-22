@@ -79,7 +79,7 @@ class Hadamard(torch.autograd.Function):
 			cunnex('kernel_Hadamard_updateOutput')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), output.data_ptr() ]
+				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), output.data_ptr() ]
 			)
 
 		elif input1.is_cuda == False:
@@ -104,14 +104,14 @@ class Hadamard(torch.autograd.Function):
 			cunnex('kernel_Hadamard_updateGradInput1')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
+				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
 			)
 
 			n = gradInput2.nelement()
 			cunnex('kernel_Hadamard_updateGradInput2')(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
+				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
 			)
 
 		elif input1.is_cuda == False:
