@@ -12,7 +12,7 @@ assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 13) # requires at
 
 class Network(torch.nn.Module):
 	def __init__(self):
-		super(Network, self).__init__()
+		super().__init__()
 	# end
 
 	def forward(self, input1, input2):

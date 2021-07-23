@@ -14,7 +14,7 @@ import hadamard
 
 class Network(torch.nn.Module):
 	def __init__(self):
-		super(Network, self).__init__()
+		super().__init__()
 	# end
 
 	def forward(self, input1, input2):
