@@ -67,8 +67,6 @@ def cunnex(strFunction):
 class Hadamard(torch.autograd.Function):
 	@staticmethod
 	def forward(self, input1, input2):
-		self.save_for_backward(input1, input2)
-
         input1 = input1.contiguous(); assert(input1.is_cuda == True)
         input2 = input2.contiguous(); assert(input2.is_cuda == True)
 
@@ -86,6 +84,8 @@ class Hadamard(torch.autograd.Function):
 			raise NotImplementedError()
 
 		# end
+
+		self.save_for_backward(input1, input2)
 
 		return output
 	# end
