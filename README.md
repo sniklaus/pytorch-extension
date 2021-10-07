@@ -1,5 +1,9 @@
 # pytorch-extension
-This is an example of a CUDA extension/function/layer for PyTorch which uses CuPy to compute the Hadamard product of two tensors. For a more advanced PyTorch extension that uses CuPy as well, please see: https://github.com/sniklaus/softmax-splatting
+This is an example of a CUDA extension/function/layer for PyTorch which uses CuPy to compute the Hadamard product of two tensors.
+
+For a more advanced extension that uses CuPy as well, please see: https://github.com/sniklaus/softmax-splatting
+<br />
+And yet another extension that uses CuPy can be found here: https://github.com/sniklaus/revisiting-sepconv
 
 ## setup
 Make sure to install CuPy, which can be done using `pip install cupy` or alternatively using one of the provided [binary packages](https://docs.cupy.dev/en/stable/install.html#installing-cupy) as outlined in the CuPy repository.
