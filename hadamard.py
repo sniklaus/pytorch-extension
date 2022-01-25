@@ -1,124 +1,140 @@
 #!/usr/bin/env python
 
+import collections
+import cupy
+import os
 import torch
 
-import cupy
 
-kernel_Hadamard_updateOutput = '''
-	extern "C" __global__ void kernel_Hadamard_updateOutput(
-		const int n,
-		const float* input1,
-		const float* input2,
-		float* output
-	) {
-		int intIndex = blockIdx.x * blockDim.x + threadIdx.x;
+##########################################################
 
-		if (intIndex >= n) {
-			return;
-		}
 
-		output[intIndex] = input1[intIndex] * input2[intIndex];
-	}
-'''
-
-kernel_Hadamard_updateGradInput1 = '''
-	extern "C" __global__ void kernel_Hadamard_updateGradInput1(
-		const int n,
-		const float* input1,
-		const float* input2,
-		const float* gradOutput,
-		float* gradInput1,
-		float* gradInput2
-	) {
-		int intIndex = blockIdx.x * blockDim.x + threadIdx.x;
-
-		if (intIndex >= n) {
-			return;
-		}
-
-		gradInput1[intIndex] = input2[intIndex] * gradOutput[intIndex];
-	}
-'''
-
-kernel_Hadamard_updateGradInput2 = '''
-	extern "C" __global__ void kernel_Hadamard_updateGradInput2(
-		const int n,
-		const float* input1,
-		const float* input2,
-		const float* gradOutput,
-		float* gradInput1,
-		float* gradInput2
-	) {
-		int intIndex = blockIdx.x * blockDim.x + threadIdx.x;
-
-		if (intIndex >= n) {
-			return;
-		}
-
-		gradInput2[intIndex] = input1[intIndex] * gradOutput[intIndex];
-	}
-'''
-
-@cupy.memoize(for_each_device=True)
-def cunnex(strFunction):
-	return cupy.cuda.compile_with_cache(globals()[strFunction]).get_function(strFunction)
+def cuda_int32(intIn:int):
+    return cupy.int32(intIn)
 # end
 
-class Hadamard(torch.autograd.Function):
-	@staticmethod
-	def forward(self, input1, input2):
-        input1 = input1.contiguous(); assert(input1.is_cuda == True)
-        input2 = input2.contiguous(); assert(input2.is_cuda == True)
 
-		output = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
+def cuda_float32(fltIn:float):
+    return cupy.float32(fltIn)
+# end
 
-		if input1.is_cuda == True:
-			n = output.nelement()
-			cunnex('kernel_Hadamard_updateOutput')(
-				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				block=tuple([ 512, 1, 1 ]),
-				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), output.data_ptr() ]
-			)
 
-		elif input1.is_cuda == False:
-			raise NotImplementedError()
+@cupy.memoize(for_each_device=True)
+def cuda_launch(strFunction:str, strKernel:str):
+    if 'CUDA_HOME' not in os.environ:
+        os.environ['CUDA_HOME'] = '/usr/local/cuda/'
+    # end
 
-		# end
+    return cupy.cuda.compile_with_cache(strKernel).get_function(strFunction)
+# end
 
-		self.save_for_backward(input1, input2)
 
-		return output
-	# end
+class hadamard_func(torch.autograd.Function):
+    @staticmethod
+    @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+    def forward(self, tenOne, tenTwo):
+        tenOne = tenOne.contiguous(); assert(tenOne.is_cuda == True)
+        tenTwo = tenTwo.contiguous(); assert(tenTwo.is_cuda == True)
 
-	@staticmethod
-	def backward(self, gradOutput):
-		input1, input2 = self.saved_tensors
+        tenOut = tenOne.new_zeros([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
 
-        gradOutput = gradOutput.contiguous(); assert(gradOutput.is_cuda == True)
+        if tenOne.is_cuda == True:
+            cuda_launch('hadamard_out', '''
+                extern "C" __global__ void __launch_bounds__(512) hadamard_out(
+                    const int n,
+                    const float* __restrict__ tenOne,
+                    const float* __restrict__ tenTwo,
+                    float* __restrict__ tenOut
+                ) {
+                    int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x;
 
-		gradInput1 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
-		gradInput2 = input1.new_zeros([ input1.shape[0], input1.shape[1], input1.shape[2], input1.shape[3] ])
+                    if (intIndex >= n) {
+                        return;
+                    }
 
-		if input1.is_cuda == True:
-			n = gradInput1.nelement()
-			cunnex('kernel_Hadamard_updateGradInput1')(
-				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				block=tuple([ 512, 1, 1 ]),
-				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
-			)
+                    tenOut[intIndex] = tenOne[intIndex] * tenTwo[intIndex];
+                }
+            ''')(
+                grid=tuple([int((tenOut.nelement() + 512 - 1) / 512), 1, 1]),
+                block=tuple([512, 1, 1]),
+                args=[cupy.int32(tenOut.nelement()), tenOne.data_ptr(), tenTwo.data_ptr(), tenOut.data_ptr()],
+                stream=collections.namedtuple('Stream', 'ptr')(torch.cuda.current_stream().cuda_stream)
+            )
 
-			n = gradInput2.nelement()
-			cunnex('kernel_Hadamard_updateGradInput2')(
-				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
-				block=tuple([ 512, 1, 1 ]),
-				args=[ cupy.int32(n), input1.data_ptr(), input2.data_ptr(), gradOutput.data_ptr(), gradInput1.data_ptr(), gradInput2.data_ptr() ]
-			)
+        elif tenOne.is_cuda == False:
+            raise NotImplementedError()
 
-		elif input1.is_cuda == False:
-			raise NotImplementedError()
+        # end
 
-		# end
+        self.save_for_backward(tenOne, tenTwo)
 
-		return gradInput1, gradInput2
-	# end
+        return tenOut
+    # end
+
+    @staticmethod
+    @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+    def backward(self, tenOutgrad):
+        tenOne, tenTwo = self.saved_tensors
+
+        tenOutgrad = tenOutgrad.contiguous(); assert(tenOutgrad.is_cuda == True)
+
+        tenOnegrad = tenOne.new_empty([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
+        tenTwograd = tenOne.new_empty([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
+
+        if tenOne.is_cuda == True:
+            cuda_launch('hadamard_onegrad', '''
+                extern "C" __global__ void __launch_bounds__(512) hadamard_onegrad(
+                    const int n,
+                    const float* __restrict__ tenOne,
+                    const float* __restrict__ tenTwo,
+                    const float* __restrict__ tenOutgrad,
+                    float* __restrict__ tenOnegrad,
+                    float* __restrict__ tenTwograd
+                ) {
+                    int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x;
+
+                    if (intIndex >= n) {
+                        return;
+                    }
+
+                    tenOnegrad[intIndex] = tenTwo[intIndex] * tenOutgrad[intIndex];
+                }
+            ''')(
+                grid=tuple([int((tenOnegrad.nelement() + 512 - 1) / 512), 1, 1]),
+                block=tuple([512, 1, 1]),
+                args=[cupy.int32(tenOnegrad.nelement()), tenOne.data_ptr(), tenTwo.data_ptr(), tenOutgrad.data_ptr(), tenOnegrad.data_ptr(), tenTwograd.data_ptr()],
+                stream=collections.namedtuple('Stream', 'ptr')(torch.cuda.current_stream().cuda_stream)
+            )
+
+            cuda_launch('hadamard_twograd', '''
+                extern "C" __global__ void __launch_bounds__(512) hadamard_twograd(
+                    const int n,
+                    const float* __restrict__ tenOne,
+                    const float* __restrict__ tenTwo,
+                    const float* __restrict__ tenOutgrad,
+                    float* __restrict__ tenOnegrad,
+                    float* __restrict__ tenTwograd
+                ) {
+                    int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x;
+
+                    if (intIndex >= n) {
+                        return;
+                    }
+
+                    tenTwograd[intIndex] = tenOne[intIndex] * tenOutgrad[intIndex];
+                }
+            ''')(
+                grid=tuple([int((tenTwograd.nelement() + 512 - 1) / 512), 1, 1]),
+                block=tuple([512, 1, 1]),
+                args=[cupy.int32(tenTwograd.nelement()), tenOne.data_ptr(), tenTwo.data_ptr(), tenOutgrad.data_ptr(), tenOnegrad.data_ptr(), tenTwograd.data_ptr()],
+                stream=collections.namedtuple('Stream', 'ptr')(torch.cuda.current_stream().cuda_stream)
+            )
+
+        elif tenOne.is_cuda == False:
+            raise NotImplementedError()
+
+        # end
+
+        return tenOnegrad, tenTwograd
+    # end
 # end
