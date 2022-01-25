@@ -14,30 +14,27 @@ There is no separate build process necessary, simply run `python run.py` to test
 ```python
 import torch
 
-import hadamard
+import hadamard # the custom layer
 
 class Network(torch.nn.Module):
 	def __init__(self):
 		super().__init__()
 	# end
 
-	def forward(self, input1, input2):
-		return hadamard.Hadamard.apply(input1, input2)
+	def forward(self, tenOne, tenTwo):
+		return hadamard.hadamard_func.apply(tenOne, tenTwo)
 	# end
 # end
 
-net = Network().cuda()
+netNetwork = Network().cuda()
 
-input1 = torch.rand(64, 3, 128, 128).cuda()
-input2 = torch.rand(64, 3, 128, 128).cuda()
+tenOne = torch.rand(64, 3, 128, 128).cuda().requires_grad_()
+tenTwo = torch.rand(64, 3, 128, 128).cuda().requires_grad_()
 
-input1 = input1.requires_grad_()
-input2 = input2.requires_grad_()
+tenOut = netNetwork(tenOne, tenTwo)
+tenExpected = torch.mul(tenOne, tenTwo)
 
-output = net(input1, input2)
-expected = torch.mul(input1, input2)
-
-print(torch.sum(output.data - expected.data), '<-- should be 0.0')
+print(torch.sum(tenOut.data - tenExpected.data), '<-- should be 0.0')
 ```
 
 ## license
