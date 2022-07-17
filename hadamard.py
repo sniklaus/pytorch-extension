@@ -22,7 +22,7 @@ def cuda_float32(fltIn:float):
 @cupy.memoize(for_each_device=True)
 def cuda_launch(strFunction:str, strKernel:str):
     if 'CUDA_HOME' not in os.environ:
-        os.environ['CUDA_HOME'] = '/usr/local/cuda/'
+        os.environ['CUDA_HOME'] = cupy.cuda.get_cuda_path()
     # end
 
     return cupy.cuda.compile_with_cache(strKernel).get_function(strFunction)
