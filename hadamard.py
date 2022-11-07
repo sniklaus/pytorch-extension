@@ -78,8 +78,8 @@ class hadamard_func(torch.autograd.Function):
 
         tenOutgrad = tenOutgrad.contiguous(); assert(tenOutgrad.is_cuda == True)
 
-        tenOnegrad = tenOne.new_empty([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
-        tenTwograd = tenOne.new_empty([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
+        tenOnegrad = tenOne.new_zeros([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
+        tenTwograd = tenOne.new_zeros([tenOne.shape[0], tenOne.shape[1], tenOne.shape[2], tenOne.shape[3]])
 
         if tenOne.is_cuda == True:
             cuda_launch('hadamard_onegrad', '''
