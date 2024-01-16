@@ -18,8 +18,8 @@ class Network(torch.nn.Module):
 
 netNetwork = Network().cuda()
 for intIter in range(3):
-    tenOne = torch.rand(2, 3, 8, 8).cuda().requires_grad_()
-    tenTwo = torch.rand(2, 3, 8, 8).cuda().requires_grad_()
+    tenOne = torch.rand(size=[2, 3, 8, 8], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
+    tenTwo = torch.rand(size=[2, 3, 8, 8], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
 
     tenOut = netNetwork(tenOne, tenTwo)
     tenExpected = torch.mul(tenOne, tenTwo)
@@ -32,8 +32,8 @@ print('switching to DataParallel mode')
 
 netNetwork = torch.nn.DataParallel(Network()).cuda()
 for intIter in range(3):
-    tenOne = torch.rand(2, 3, 8, 8).cuda().requires_grad_()
-    tenTwo = torch.rand(2, 3, 8, 8).cuda().requires_grad_()
+    tenOne = torch.rand(size=[2, 3, 8, 8], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
+    tenTwo = torch.rand(size=[2, 3, 8, 8], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
 
     tenOut = netNetwork(tenOne, tenTwo)
     tenExpected = torch.mul(tenOne, tenTwo)

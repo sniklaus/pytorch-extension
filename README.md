@@ -28,8 +28,8 @@ class Network(torch.nn.Module):
 
 netNetwork = Network().cuda()
 
-tenOne = torch.rand(64, 3, 128, 128).cuda().requires_grad_()
-tenTwo = torch.rand(64, 3, 128, 128).cuda().requires_grad_()
+tenOne = torch.rand(size=[64, 3, 128, 128], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
+tenTwo = torch.rand(size=[64, 3, 128, 128], dtype=torch.float32, device=torch.device('cuda')).requires_grad_()
 
 tenOut = netNetwork(tenOne, tenTwo)
 tenExpected = torch.mul(tenOne, tenTwo)
