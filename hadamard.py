@@ -25,7 +25,7 @@ def cuda_launch(strFunction:str, strKernel:str):
         os.environ['CUDA_HOME'] = cupy.cuda.get_cuda_path()
     # end
 
-    return cupy.cuda.compile_with_cache(strKernel).get_function(strFunction)
+    return cupy.RawKernel(strKernel, strFunction)
 # end
 
 
