@@ -31,7 +31,7 @@ def cuda_launch(strFunction:str, strKernel:str):
 
 class hadamard_func(torch.autograd.Function):
     @staticmethod
-    @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+    @torch.amp.custom_fwd(device_type='cuda', cast_inputs=torch.float32)
     def forward(self, tenOne, tenTwo):
         tenOne = tenOne.contiguous(); assert(tenOne.is_cuda == True)
         tenTwo = tenTwo.contiguous(); assert(tenTwo.is_cuda == True)
@@ -72,7 +72,7 @@ class hadamard_func(torch.autograd.Function):
     # end
 
     @staticmethod
-    @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+    @torch.amp.custom_bwd(device_type='cuda')
     def backward(self, tenOutgrad):
         tenOne, tenTwo = self.saved_tensors
 
