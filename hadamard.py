@@ -33,6 +33,9 @@ class hadamard_func(torch.autograd.Function):
     @staticmethod
     @torch.amp.custom_fwd(device_type='cuda', cast_inputs=torch.float32)
     def forward(self, tenOne, tenTwo):
+        tenOne = tenOne.float() # manual cast in case amp is not enabled
+        tenTwo = tenTwo.float() # manual cast in case amp is not enabled
+
         tenOne = tenOne.contiguous(); assert(tenOne.is_cuda == True)
         tenTwo = tenTwo.contiguous(); assert(tenTwo.is_cuda == True)
 
